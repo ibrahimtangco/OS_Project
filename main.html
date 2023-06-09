@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <script src="sweetalert2.all.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.11/dist/sweetalert2.all.min.js"></script>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            myGray: "#D9D9D9",
+                            myBrown: "#B9B3B3",
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <style>
+            .title {
+                font-family: "Anton", sans-serif;
+            }
+            .body {
+                font-family: "Poppins", sans-serif;
+            }
+        </style>
+        <title>Document</title>
+    </head>
+    <body class="">
+        <div class="h-full max-h-screen">
+            <header class="bg-myGray py-6">
+                <h1 class="title text-center text-xl">
+                    UNDECIDED: PAGE REPLACEMENT SOLVER
+                </h1>
+            </header>
+
+            <main
+                class="container flex flex-col spcae-y-16 w-full justify-center items-center py-16"
+            >
+                <div
+                    class="flex flex-col space-y-8 items-center max-w-2xl text-center"
+                >
+                    <h1 class="title text-3xl">PAGE REPLACEMENT ALGORITHM</h1>
+                    <p class="body">
+                        This tool helps you simulate and analyze different page
+                        replacement algorithms for managing memory in a computer
+                        system.
+                    </p>
+                </div>
+
+                <form
+                    id="myForm"
+                    class="body bg-myGray p-8 mx-auto mt-16 w-full md:w-3/4 lg:w-2/4 space-y-2"
+                >
+                    <div class="lg:flex lg:space-x-12 items-center">
+                        <label for="" class="w-1/6">Stream</label>
+                        <input
+                            class="py-2 px-4 outline-none w-full lg:w-5/6"
+                            type="text"
+                            name="stream"
+                            id="stream"
+                            placeholder="Enter Stream"
+                        />
+                    </div>
+
+                    <div class="lg:flex lg:space-x-12 items-center">
+                        <label for="" class="w-1/6">Pages</label>
+                        <input
+                            class="py-2 px-4 outline-none w-full lg:w-5/6"
+                            type="text"
+                            name="page"
+                            id="page"
+                            placeholder="e.g., 1 2 3 4 2 3 1 4 1 3"
+                        />
+                    </div>
+
+                    <div class="lg:flex lg:space-x-12 items-center">
+                        <label for="" class="w-1/6">Frames</label>
+                        <input
+                            class="py-2 px-4 outline-none w-full lg:w-5/6"
+                            type="number"
+                            name="frames"
+                            id="frames"
+                            placeholder="Number of Frames"
+                        />
+                    </div>
+
+                    <div class="lg:flex lg:space-x-12 items-center">
+                        <label for="policy" class="w-1/6">Policies</label>
+                        <select
+                            name=""
+                            id="policy"
+                            class="py-2 px-4 outline-none w-full lg:w-5/6 bg-myBrown"
+                        >
+                            <option value="fifo">First In First Out</option>
+                            <option value="lru">Least Reacently Used</option>
+                            <option value="lfu">Least Frequently Used</option>
+                        </select>
+                    </div>
+                    <div class="mt-12"></div>
+                    <button
+                        type="submit"
+                        class="bg-myBrown w-full px-12 py-2 hover:bg-stone-400 font-medium"
+                    >
+                        Solve
+                    </button>
+                </form>
+            </main>
+        </div>
+        <script src="asset/script/script.js"></script>
+    </body>
+</html>
