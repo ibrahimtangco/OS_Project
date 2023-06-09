@@ -1,11 +1,14 @@
 document.getElementById("myForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
+    //* Store the data from the form
     const stream = document.getElementById("stream").value;
     const pages = document.getElementById("page").value.split(" ");
     const numFrames = parseInt(document.getElementById("frames").value);
     const policy = document.getElementById("policy").value;
 
+    //* Check if the inputted data
+    //! If it's invalid, alert message will be displayed
     if (!stream || typeof pages === "string") {
         Swal.fire({
             icon: "error",
@@ -14,6 +17,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         return;
     }
 
+    //* Create a storage for the following
     let pageFaults = 0;
     let pageHits = 0;
     let pageTable = [];
@@ -22,29 +26,40 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let output = "";
 
     // TODO: FIFO code
+
+    //* Check if the chosen policy is FIFO
     if (policy === "fifo") {
+        //* Store 'FIFO' as a value for the algorithmName, this will be displayed in the result
         algorithmName = "FIFO";
 
+        //* Iterate through the array of page
         for (let i = 0; i < pages.length; i++) {
+            //* Store each page in a temporary variable
             let page = parseInt(pages[i]);
 
+            //* Check if the current page is already in the page table
+            //* If the current page is already in the page table, page hit will be incremented
+            //* If not, page fault will be incremented
             if (pageTable.includes(page)) {
                 pageHits++;
             } else {
                 pageFaults++;
 
+                //* If all table is occupied, it removes the first value
                 if (pageTable.length === numFrames) {
                     pageTable.shift();
                 }
-
+                //* Insert the page into the end of the table
                 pageTable.push(page);
             }
 
+            //* Object for the references and frames
             let row = {
                 reference: page,
-                frames: pageTable.join(", "),
+                //* Store the array of pages as a String concatinated with blank space
+                frames: pageTable.join("\n"),
             };
-
+            //* Push the
             tableData.push(row);
         }
     }
@@ -133,7 +148,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
             let row = {
                 reference: page,
-                frames: pageTable.join(", "),
+                frames: pageTable.join("\n"),
             };
 
             tableData.push(row);
@@ -148,7 +163,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             <p>${pageFrequencyVisualization}</p>
         `;
     }
-
     const pageHitRatio = (pageHits / pages.length) * 100;
     const pageFaultRatio = (pageFaults / pages.length) * 100;
 
@@ -164,30 +178,34 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     </ul>
     <h2 class="text-xl font-bold pt-4">Solution Visualization</h2>
     <table class="w-full bg-myGray my-8">
-    <thead>
-        <tr>
-            <th class="border px-4 py-2">Reference</th>
-            <th class="border px-4 py-2">Frames</th>
-        </tr>
-    </thead>
+   
     <tbody>
     <tr>
+    <th class="border text-center py-4">Reference</th>
+
         ${tableData
+
             .map(
                 (row) => `
                 
-                <td class="border px-4 py-2">${row.reference}</td>
+                <td class="border text-center py-4 font-bold">${row.reference}</td>
             
         `
             )
             .join("")}
             </tr>
             <tr>
+            <th class="border text-center py-4">Frames</th>
+
         ${tableData
             .map(
                 (row) => `
                 
-                <td class="border px-4 py-2">${row.frames}</td>
+                <td class="border text-center py-4">
+                    <div>
+                        ${row.frames}
+                    </div>
+                </td>
             
         `
             )
