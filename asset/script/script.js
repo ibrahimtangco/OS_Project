@@ -7,7 +7,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     const numFrames = parseInt(document.getElementById("frames").value);
     const policy = document.getElementById("policy").value;
 
-    //* Check if the inputted data is invalid
+    //* Check if the inputted data
+    //! If it's invalid, alert message will be displayed
     if (!stream || typeof pages === "string") {
         alert("Invalid Input");
         return;
@@ -28,9 +29,9 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         //* Store 'FIFO' as a value for the algorithmName, this will be displayed in the result
         algorithmName = "FIFO";
 
-        let oldestPageIndex = 0; // Track the index of the oldest page in the page table
-        //* Iterate through the array of pages
+        //* Iterate through the array of page
         for (let i = 0; i < pages.length; i++) {
+            //* Store each page in a temporary variable
             let page = parseInt(pages[i]);
 
             //* Check if the current page is already in the page table
@@ -41,22 +42,24 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             } else {
                 pageFaults++;
 
-                //* If all frames are occupied, remove the oldest page from the page table
+                //* If all table is occupied, it removes the first value
                 if (pageTable.length === numFrames) {
                     pageTable[oldestPageIndex] = page; // Replace the oldest page with the new page
                     oldestPageIndex = (oldestPageIndex + 1) % numFrames; // Update the oldestPageIndex
                 } else {
                     pageTable.push(page); // Insert the new page into the page table
                 }
+                //* Insert the page into the end of the table
+                pageTable.push(page);
             }
 
             //* Object for the references and frames
             let row = {
                 reference: page,
-                //* Store the array of pages as a String concatenated with a line break
-                frames: pageTable.join("<br><hr><br>"),
+                //* Store the array of pages as a String concatinated with blank space
+                frames: pageTable.join("\n"),
             };
-            //* Push the row object to the tableData array
+            //* Push the
             tableData.push(row);
         }
     }
@@ -169,13 +172,12 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
             let row = {
                 reference: page,
-                frames: pageTable.join("<br><hr><br>"),
+                frames: pageTable.join("\n"),
             };
 
             tableData.push(row);
         }
     }
-
     const pageHitRatio = (pageHits / pages.length) * 100;
     const pageFaultRatio = (pageFaults / pages.length) * 100;
 
@@ -194,7 +196,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
    
     <tbody>
     <tr>
-        <th class="border text-center py-4 w-2/12">Reference</th>
+    <th class="border text-center py-4">Reference</th>
 
         ${tableData
 
@@ -206,19 +208,18 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         `
             )
             .join("")}
-    </tr>
-    
-    <tr>
-        <th class="border text-center py-4 w-2/12">Frames</th>
+            </tr>
+            <tr>
+            <th class="border text-center py-4">Frames</th>
 
         ${tableData
             .map(
                 (row) => `
                 
-                <td class="border text-center align-top py-4">
-                  
+                <td class="border text-center py-4">
+                    <div>
                         ${row.frames}
-                        
+                    </div>
                 </td>
             
         `
