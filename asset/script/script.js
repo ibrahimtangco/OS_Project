@@ -3,15 +3,14 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     //* Store the data from the form
     const stream = document.getElementById("stream").value;
-    const pages = document.getElementById("page").value;
-    const pagesSplitted = pages.split(" ");
+    const pageOld = document.getElementById("page").value;
+    const pages = pageOld.split(" ");
     const numFrames = parseInt(document.getElementById("frames").value);
     const policy = document.getElementById("policy").value;
     const pattern = /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
     let hasLetters = false;
-
-    for (let i = 0; i < pagesSplitted.length; i++) {
-        if (pattern.test(pagesSplitted[i])) {
+    for (let i = 0; i < pages.length; i++) {
+        if (pattern.test(pages[i])) {
             hasLetters = true;
             break;
         }
@@ -23,21 +22,22 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             icon: "error",
             title: "Oops...",
             text: "Pages cannot be empty!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                location.reload(); // Refresh the page
-            }
         });
+        return;
+    } else if (!frames) {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Number of frames cannot be empty!",
+        });
+        return;
     } else if (hasLetters) {
         Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "Reference stream cannot contain characters!",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                location.reload(); // Refresh the page
-            }
+            text: "Reference stream cannot contain characters",
         });
+        return;
     }
     //* Create a storage for the following
     let pageFaults = 0;
