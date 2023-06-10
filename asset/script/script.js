@@ -3,17 +3,42 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     //* Store the data from the form
     const stream = document.getElementById("stream").value;
-    const pages = document.getElementById("page").value.split(" ");
+    const pages = document.getElementById("page").value;
+    const pagesSplitted = pages.split(" ");
     const numFrames = parseInt(document.getElementById("frames").value);
     const policy = document.getElementById("policy").value;
+    const pattern = /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+    let hasLetters = false;
 
-    //* Check if the inputted data
-    //! If it's invalid, alert message will be displayed
-    if (!stream || typeof pages === "string") {
-        alert("Invalid Input");
-        return;
+    for (let i = 0; i < pagesSplitted.length; i++) {
+        if (pattern.test(pagesSplitted[i])) {
+            hasLetters = true;
+            break;
+        }
     }
 
+    //* Check if the inputted data is invalid
+    if (!stream) {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Pages cannot be empty!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload(); // Refresh the page
+            }
+        });
+    } else if (hasLetters) {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Reference stream cannot contain characters!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload(); // Refresh the page
+            }
+        });
+    }
     //* Create a storage for the following
     let pageFaults = 0;
     let pageHits = 0;
@@ -29,9 +54,10 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         //* Store 'FIFO' as a value for the algorithmName, this will be displayed in the result
         algorithmName = "FIFO";
 
-        //* Iterate through the array of page
+        let oldestPageIndex = 0; // Track the index of the oldest page in the page table
+
+        //* Iterate through the array of pages
         for (let i = 0; i < pages.length; i++) {
-            //* Store each page in a temporary variable
             let page = parseInt(pages[i]);
 
             //* Check if the current page is already in the page table
@@ -42,24 +68,22 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
             } else {
                 pageFaults++;
 
-                //* If all table is occupied, it removes the first value
+                //* If all frames are occupied, remove the oldest page from the page table
                 if (pageTable.length === numFrames) {
                     pageTable[oldestPageIndex] = page; // Replace the oldest page with the new page
                     oldestPageIndex = (oldestPageIndex + 1) % numFrames; // Update the oldestPageIndex
                 } else {
                     pageTable.push(page); // Insert the new page into the page table
                 }
-                //* Insert the page into the end of the table
-                pageTable.push(page);
             }
 
             //* Object for the references and frames
             let row = {
                 reference: page,
-                //* Store the array of pages as a String concatinated with blank space
-                frames: pageTable.join("\n"),
+                //* Store the array of pages as a String concatenated with a line break
+                frames: pageTable.join("<br><hr>"),
             };
-            //* Push the
+            //* Push the row object to the tableData array
             tableData.push(row);
         }
     }
@@ -67,9 +91,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     // TODO: LRU code
     else if (policy === "lru") {
         algorithmName = "LRU";
-
-        const indexes = new Map();
-
         for (let i = 0; i < pages.length; i++) {
             let page = parseInt(pages[i]);
 
@@ -81,42 +102,22 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
                 const pageIndex = pageTable.indexOf(page);
                 pageTable.splice(pageIndex, 1);
                 pageTable.push(page);
-
-                // Update the page's index in the indexes map
-                indexes.set(page, i);
             } else {
                 // Page fault
                 pageFaults++;
 
                 if (pageTable.length === numFrames) {
-                    // Find the least recently used page
-                    let lruPage = pageTable[0];
-                    let lruIndex = indexes.get(lruPage);
-
-                    for (let j = 1; j < pageTable.length; j++) {
-                        const currentPage = pageTable[j];
-                        const currentIndex = indexes.get(currentPage);
-
-                        if (currentIndex < lruIndex) {
-                            lruPage = currentPage;
-                            lruIndex = currentIndex;
-                        }
-                    }
-
                     // Remove the least recently used page
-                    const pageIndex = pageTable.indexOf(lruPage);
-                    pageTable.splice(pageIndex, 1);
-                    indexes.delete(lruPage);
+                    pageTable.shift();
                 }
 
                 // Add the new page to the pageTable
                 pageTable.push(page);
-                indexes.set(page, i);
             }
 
             let row = {
                 reference: page,
-                frames: Array.from(pageTable),
+                frames: pageTable.join("<br><hr>"),
             };
 
             tableData.push(row);
@@ -172,12 +173,13 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
             let row = {
                 reference: page,
-                frames: pageTable.join("\n"),
+                frames: pageTable.join("<br><hr>"),
             };
 
             tableData.push(row);
         }
     }
+
     const pageHitRatio = (pageHits / pages.length) * 100;
     const pageFaultRatio = (pageFaults / pages.length) * 100;
 
@@ -196,7 +198,7 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
    
     <tbody>
     <tr>
-    <th class="border text-center py-4">Reference</th>
+        <th class="border text-center py-4 w-2/12">Reference</th>
 
         ${tableData
 
@@ -208,18 +210,19 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         `
             )
             .join("")}
-            </tr>
-            <tr>
-            <th class="border text-center py-4">Frames</th>
+    </tr>
+    
+    <tr>
+        <th class="border text-center py-4 w-2/12">Frames</th>
 
         ${tableData
             .map(
                 (row) => `
                 
-                <td class="border text-center py-4">
-                    <div>
+                <td class="border text-center align-top py-4">
+                  
                         ${row.frames}
-                    </div>
+                    
                 </td>
             
         `
