@@ -1,19 +1,19 @@
 document.getElementById("myForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
+    //* Store the data from the form
     const stream = document.getElementById("stream").value;
     const pages = document.getElementById("page").value.split(" ");
     const numFrames = parseInt(document.getElementById("frames").value);
     const policy = document.getElementById("policy").value;
 
+    //* Check if the inputted data is invalid
     if (!stream || typeof pages === "string") {
-        Swal.fire({
-            icon: "error",
-            title: "Invalid Input",
-        });
+        alert("Invalid Input");
         return;
     }
 
+    //* Create a storage for the following
     let pageFaults = 0;
     let pageHits = 0;
     let pageTable = [];
@@ -22,29 +22,41 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     let output = "";
 
     // TODO: FIFO code
+
+    //* Check if the chosen policy is FIFO
     if (policy === "fifo") {
+        //* Store 'FIFO' as a value for the algorithmName, this will be displayed in the result
         algorithmName = "FIFO";
 
+        let oldestPageIndex = 0; // Track the index of the oldest page in the page table
+        //* Iterate through the array of pages
         for (let i = 0; i < pages.length; i++) {
             let page = parseInt(pages[i]);
 
+            //* Check if the current page is already in the page table
+            //* If the current page is already in the page table, page hit will be incremented
+            //* If not, page fault will be incremented
             if (pageTable.includes(page)) {
                 pageHits++;
             } else {
                 pageFaults++;
 
+                //* If all frames are occupied, remove the oldest page from the page table
                 if (pageTable.length === numFrames) {
-                    pageTable.shift();
+                    pageTable[oldestPageIndex] = page; // Replace the oldest page with the new page
+                    oldestPageIndex = (oldestPageIndex + 1) % numFrames; // Update the oldestPageIndex
+                } else {
+                    pageTable.push(page); // Insert the new page into the page table
                 }
-
-                pageTable.push(page);
             }
 
+            //* Object for the references and frames
             let row = {
                 reference: page,
-                frames: pageTable.join(", "),
+                //* Store the array of pages as a String concatenated with a line break
+                frames: pageTable.join("<br><hr><br>"),
             };
-
+            //* Push the row object to the tableData array
             tableData.push(row);
         }
     }
@@ -52,6 +64,9 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     // TODO: LRU code
     else if (policy === "lru") {
         algorithmName = "LRU";
+
+        const indexes = new Map();
+
         for (let i = 0; i < pages.length; i++) {
             let page = parseInt(pages[i]);
 
@@ -63,30 +78,51 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
                 const pageIndex = pageTable.indexOf(page);
                 pageTable.splice(pageIndex, 1);
                 pageTable.push(page);
+
+                // Update the page's index in the indexes map
+                indexes.set(page, i);
             } else {
                 // Page fault
                 pageFaults++;
 
                 if (pageTable.length === numFrames) {
+                    // Find the least recently used page
+                    let lruPage = pageTable[0];
+                    let lruIndex = indexes.get(lruPage);
+
+                    for (let j = 1; j < pageTable.length; j++) {
+                        const currentPage = pageTable[j];
+                        const currentIndex = indexes.get(currentPage);
+
+                        if (currentIndex < lruIndex) {
+                            lruPage = currentPage;
+                            lruIndex = currentIndex;
+                        }
+                    }
+
                     // Remove the least recently used page
-                    pageTable.shift();
+                    const pageIndex = pageTable.indexOf(lruPage);
+                    pageTable.splice(pageIndex, 1);
+                    indexes.delete(lruPage);
                 }
 
                 // Add the new page to the pageTable
                 pageTable.push(page);
+                indexes.set(page, i);
             }
 
             let row = {
                 reference: page,
-                frames: pageTable.join("\n"),
+                frames: Array.from(pageTable),
             };
 
             tableData.push(row);
         }
     }
+
     // TODO: LFU code
     else {
-        algorithmName = "LFU ";
+        algorithmName = "LFU";
 
         const pageFrequency = new Map();
 
@@ -133,20 +169,11 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
             let row = {
                 reference: page,
-                frames: pageTable.join(", "),
+                frames: pageTable.join("<br><hr><br>"),
             };
 
             tableData.push(row);
         }
-
-        const pageFrequencyVisualization = Array.from(pageFrequency.entries())
-            .map(([page, frequency]) => `${page}: ${frequency}`)
-            .join(", ");
-
-        output += `
-            <h2 class="text-xl font-bold pt-4">Page Frequencies</h2>
-            <p>${pageFrequencyVisualization}</p>
-        `;
     }
 
     const pageHitRatio = (pageHits / pages.length) * 100;
@@ -164,35 +191,40 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     </ul>
     <h2 class="text-xl font-bold pt-4">Solution Visualization</h2>
     <table class="w-full bg-myGray my-8">
-    <thead>
-        <tr>
-            <th class="border px-4 py-2">Reference</th>
-            <th class="border px-4 py-2">Frames</th>
-        </tr>
-    </thead>
+   
     <tbody>
     <tr>
+        <th class="border text-center py-4 w-2/12">Reference</th>
+
         ${tableData
+
             .map(
                 (row) => `
                 
-                <td class="border px-4 py-2">${row.reference}</td>
+                <td class="border text-center py-4 font-bold">${row.reference}</td>
             
         `
             )
             .join("")}
-            </tr>
-            <tr>
+    </tr>
+    
+    <tr>
+        <th class="border text-center py-4 w-2/12">Frames</th>
+
         ${tableData
             .map(
                 (row) => `
                 
-                <td class="border px-4 py-2">${row.frames}</td>
+                <td class="border text-center align-top py-4">
+                  
+                        ${row.frames}
+                        
+                </td>
             
         `
             )
             .join("")}
-            </tr>
+    </tr>
     </tbody>
 </table>
     
