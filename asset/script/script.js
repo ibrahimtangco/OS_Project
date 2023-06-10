@@ -188,8 +188,8 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
     <ul class="pl-4 font-regular">
       <li class="list-disc py-px"><strong>Algorithm:</strong> ${algorithmName}</li>
-      <li class="list-disc py-px"><strong>Reference Stream:</strong> ${stream}</li>
-      <li class="list-disc py-px"><strong>Pages:</strong> ${pages.join(
+      <li class="list-disc py-px"><strong>Pages:</strong> ${stream}</li>
+      <li class="list-disc py-px"><strong>Reference Stream:</strong> ${pages.join(
           ", "
       )}</li>
     </ul>
