@@ -264,15 +264,17 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
 
             
             
-            ${pageFaultCounter.map((value) =>
-                value === 1
-                    ? `<td class="border text-center align-top py-4 bg-red-500 font-semibold text-white">
+            ${pageFaultCounter
+                .map((value) =>
+                    value === 1
+                        ? `<td class="border text-center align-top py-4 bg-red-500 font-semibold text-white">
                         <i class="fa-solid fa-xmark"></i>
                     </td>`
-                    : `<td class="border text-center align-top py-4 bg-green-500 font-semibold text-white">
+                        : `<td class="border text-center align-top py-4 bg-green-500 font-semibold text-white">
                         <i class="fa-solid fa-check"></i>
                     </td>`
-            )}
+                )
+                .join("")}
 
 
 
